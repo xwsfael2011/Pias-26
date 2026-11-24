@@ -1,154 +1,353 @@
-#include <stdio.h>   // 🐒 Mamaco pega ferramenta pra falar (printf) e ouvir (scanf)
-#include <stdlib.h>  // 🐒 Mamaco pega ferramenta extra pra mexer com sistema
+#define COR_RESETAR            "\033[0m"
+#define RESET "\033[0m"
+#define COR_VERMELHO           "\033[31m"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-char opcao; // 🐒 Gaveta pro mamaco guardar o botão que o humano apertou no menu
+char produtos[4][30] = {
+    "Marmita de frango",
+    "Marmita de porco",
+    "Marmita de peixe",
+    "Marmita de boi"
+};
 
-// 🎨 Tintas pro mamaco pintar o texto no terminal
-#define COR_RESETAR "\033[0m"   // 🧼 Limpa as cor e volta pro normal
-#define FUNDO_AZUL "\033[104m"  // 🟦 Pinta o fundo de azul
-#define COR_VERMELHA "\033[31m" // 🟥 Pinta as letra de vermelho (alerta!)
-#define COR_VERDE "\033[32m"    // 🟩 Pinta as letra de verde (sucesso!)
-#define ARQUIVO_ESTOQUE "dados_estoque.txt" // 📝 Nome do papel onde mamaco anota as marmita pra não esquecer
+float preco[4] = {
+    20.00,
+    25.00,
+    35.00,
+    30.00
+};
 
-// 💾 FUNÇÃO: MAMACO ESCREVE NO PAPEL (SALVAR)
-void salvar_dados(int estoque[]) {
-    FILE *arquivo = fopen(ARQUIVO_ESTOQUE, "w"); // 📂 Abre o bloco de notas pra escrever ("w")
-    if (arquivo == NULL) { // 🛑 Ih, o papel sumiu ou rasgou?
-        return; // 🐒 Mamaco desiste e vai embora
+int estoque[4] = {
+    10,
+    10,
+    10,
+    10
+};
+
+int compra[4] = {
+    0,
+    0,
+    0,
+    0
+};
+
+
+char bebidas[4][30] = {
+    "Coca lata",
+    "Guarana lata",
+    "Fanta lata",
+    "Sprite lata"
+};
+
+float preco_bebida[4] = {
+    6.00,
+    6.00,
+    6.00,
+    6.00
+};
+
+int estoque_bebida[4] = {
+    10,
+    10,
+    10,
+    10
+};
+
+int compra_bebida[4] = {
+    0,
+    0,
+    0,
+    0
+};
+void carrega_produto() {
+    FILE *arquivo = fopen("estoque.txt", "r");
+   
+    if (arquivo != NULL) {
+        for (int i = 0; i < 4; i++) {
+            fscanf(arquivo, "%d", &estoque[i]);
+        }
+        for (int i = 0; i < 4; i++) {
+            fscanf(arquivo, "%d", &estoque_bebida[i]);
+        }  
+        fclose(arquivo);
+    } else {
+        printf("\n[Aviso] Arquivo de estoque nao encontrado. Usando valores padrao (10 unidades).\n");
     }
-    for (int i = 0; i < 4; i++) { // 🔁 Passa pelos 4 tipo de marmita
-        fprintf(arquivo, "%d\n", estoque[i]); // ✍️ Escreve no papel quantas sobrou de cada uma
-    }
-    fclose(arquivo); // 🔒 Fecha o bloco de notas pro vento não levar
 }
 
-// 📖 FUNÇÃO: MAMACO LÊ O PAPEL (CARREGAR)
-void carregar_dados(int estoque[]) {
-    FILE *arquivo = fopen(ARQUIVO_ESTOQUE, "r"); // 📂 Abre o papel pra ler ("r")
-    if (arquivo == NULL) { // 🛑 Não tem papel guardado ainda? (Primeira vez rodando)
-        return; // 🐒 Mamaco usa o estoque padrão de 10 e vai embora
+void salva_produto(){
+    FILE *arquivo = fopen("estoque.txt", "w");
+    
+    if (arquivo != NULL){
+        for (int i = 0; i < 4; i++){
+            fprintf(arquivo, "%d\n", estoque[i]);
+        }
+         for (int i = 0; i < 4; i++){
+            fprintf(arquivo, "%d\n", estoque_bebida[i]);
+        }
+        fclose(arquivo);
+    } else {
+        printf("\n[Aviso] Arquivo de estoque nao encontrado. Usando valores padrao (10 unidades).\n");
     }
-    for (int i = 0; i < 4; i++) { // 🔁 Passa pelas 4 marmita
-        fscanf(arquivo, "%d", &estoque[i]); // 🤓 Olha o papel e bota o número de volta nas gaveta de estoque
-    }
-    fclose(arquivo); // 🔒 Fecha o papel
 }
 
-// 🏢 FUNÇÃO: DESENHA A FACHADA DA LOJA COM BANNER BONITO
+
 void nome_loja() {
-    printf("\n" FUNDO_AZUL COR_VERMELHA); // 🎨 Ativa o fundo azul e letra vermelha
-    printf(" ████╗ ████║██║██╔══██╗██╔══██╗████╗  ██║██║  ██║██╔══██╗\n"); // 🧱 Desenha "M" gigante
-    printf(" ██╔████╔██║██║██████╔╝███████║██╔██╗ ██║███████║███████║\n"); // 🧱 Desenha "I" gigante
-    printf(" ██║╚██╔╝██║██║██╔══██╗██╔══██║██║╚██╗██║██╔══██║██╔══██║\n"); // 🧱 Desenha "R" gigante
-    printf(" ╚═╝ ╚═╝ ╚═╝╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝╚═╝  ╚═╝\n"); // 🧱 Termina o desenho doido
-    printf(COR_RESETAR "\n"); // 🧼 Tira as cor pra não estragar o resto
-    printf("====================================================\n"); // ➖ Linha bonita
-    printf("             BEM-VINDO A MIRANHA MARMITAS           \n"); // 💬 Texto de boas-vindas
-    printf("====================================================\n"); // ➖ Outra linha bonita
+
+    printf("\n");
+    printf( COR_VERMELHO"███╗   ███╗██╗██████╗  █████╗ ███╗   ██╗██╗  ██╗ █████╗ \n");
+    printf("████╗ ████║██║██╔══██╗██╔══██╗████╗  ██║██║  ██║██╔══██╗\n");
+    printf("██╔████╔██║██║██████╔╝███████║██╔██╗ ██║███████║███████║\n");
+    printf("██║╚██╔╝██║██║██╔══██╗██╔══██║██║╚██╗██║██╔══██║██╔══██║\n");
+    printf("██║ ╚═╝ ██║██║██║  ██║██║  ██║██║ ╚████║██║  ██║██║  ██║\n");
+    printf("╚═╝     ╚═╝╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝╚═╝  ╚═╝\n");
+
+    printf("\n");
+    printf("███╗   ███╗ █████╗ ██████╗ ███╗   ███╗██╗████████╗ █████╗ ███████╗\n");
+    printf("████╗ ████║██╔══██╗██╔══██╗████╗ ████║██║╚══██╔══╝██╔══██╗██╔════╝\n");
+    printf("██╔████╔██║███████║██████╔╝██╔████╔██║██║   ██║   ███████║███████╗\n");
+    printf("██║╚██╔╝██║██╔══██║██╔══██╗██║╚██╔╝██║██║   ██║   ██╔══██║╚════██║\n");
+    printf("██║ ╚═╝ ██║██║  ██║██║  ██║██║ ╚═╝ ██║██║   ██║   ██║  ██║███████║\n");
+    printf("╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝╚═╝   ╚═╝   ╚═╝  ╚═╝╚══════╝\n" RESET);
+
+    printf("\n");
+    printf("============================================\n");
+    printf("          BEM-VINDO A MIRANHA MARMITAS\n");
+    printf("============================================\n");
 }
 
-// 📦 AS GAVETAS DE COISAS DA LOJA (VETORES)
-char produtos[4][30] = {"Marmita de frango", "Marmita de porco", "Marmita de boi", "Marmita de peixe"}; // 🍗 Prateleira com os nomes
-float preco[4] = {20.00, 25.00, 30.00, 35.00}; // 💵 Etiquetas de preço de cada uma
-int estoque[4] = {10, 10, 10, 10};      // 🎒 Quantas marmitas tem na cozinha pra vender
-int compras[4] = {0, 0, 0, 0};          // 🛒 Carrinho de compras do cliente (começa vazio)
 
-// 📋 FUNÇÃO: MOSTRAR O CARDÁPIO
-void cardapio() {
-    printf("\n >--- Cardapio ---<\n"); // 💬 Título do cardápio
-    for (int i = 0; i < 4; i++) { // 🔁 Loop que conta: 0, 1, 2, 3...
-        printf("%d - %s | R$ %.2f [Estoque: %d]\n", i, produtos[i], preco[i], estoque[i]); // 📢 Grita o número, o nome, o preço e o estoque de cada marmita
-    }
-}
+void mostra_marmitas(){
+    
+        printf("\n--- MARMITAS ---\n");
 
-// 🛍️ FUNÇÃO: FAZER COMPRA (BOTAR NO CARRINHO)
-void compra() {
-    int item, qtd; // 📦 Gavetinhas temporárias pra guardar o que o humano quer agora
-    printf("\nDigite o numero do produto:\n"); // 💬 Pergunta qual marmita quer (0 a 3)
-    
-    if (scanf("%d", &item) != 1) { // 🤔 Humano digitou letra em vez de número?
-        printf("\n" COR_VERMELHA "Entrada invalida! Digite apenas numeros." COR_RESETAR "\n"); // 🟥 Grita erro vermelho
-        while (getchar() != '\n'); // 🧹 Limpa a bagunça que o humano digitou
-        return; // 🐒 Mamaco cancela a operação e volta pro menu
-    }
-    while (getchar() != '\n'); // 🧹 Limpa o "Enter" que sobrou no teclado
-    
-    if(item < 0 || item > 3) { // 🤔 Humano digitou um número que não tem no cardápio? (tipo 5 ou 9)
-        printf("\n" COR_VERMELHA "Produto invalido!" COR_RESETAR "\n"); // 🟥 Grita erro
-        return; // 🐒 Mamaco cancela
-    }
-    
-    printf("Digite a quantidade:\n"); // 💬 Pergunta quantas marmitas ele quer levar
-    if (scanf("%d", &qtd) != 1) { // 🤔 Digitou besteira de novo?
-        printf("\n" COR_VERMELHA "Quantidade invalida!" COR_RESETAR "\n"); // 🟥 Grita quantidade errada
-        while (getchar() != '\n'); // 🧹 Limpa o teclado
-        return; // 🐒 Mamaco cancela
-    }
-    while (getchar() != '\n'); // 🧹 Limpa o "Enter" do teclado de novo
-    
-    if (qtd <= estoque[item] && qtd > 0) { // 🤔 Tem marmita suficiente na cozinha E a quantidade é maior que zero?
-        compras[item] += qtd; // 🛒 Coloca as marmitas dentro do carrinho do cliente
-        estoque[item] -= qtd; // 📉 Tira as marmitas da geladeira da cozinha
-        
-        salvar_dados(estoque); // 📝 Anota na hora no papel pra não perder o estoque se a energia acabar
-        
-        printf("\n" COR_VERDE "Sucesso: %d unidades de '%s' adicionadas!" COR_RESETAR "\n", qtd, produtos[item]); // 🟩 Grita sucesso verde!
-    } else { // ❌ Se não tiver estoque suficiente ou digitou número negativo...
-        printf("\n" COR_VERMELHA "Erro! So temos %d unidades no estoque." COR_RESETAR "\n", estoque[item]); // 🟥 Grita que acabou
+    for (int i = 0; i < 4; i++) {
+        printf("%d - %s -- R$ %.2f -- Estoque: %d\n",
+               i ,
+               produtos[i],
+               preco[i],
+               estoque[i]);
     }
 }
 
-// 🧾 FUNÇÃO: EMITIR NOTA FISCAL (FECHAR CONTA)
-void fechar_pedido() {
-    float total = 0; // 💵 Moedas totais que o cliente vai pagar (começa em zero)
-    printf("\n==================================\n");
-    printf("           NOTA FISCAL            \n"); 
-    printf("==================================\n");
-    
-    for (int i = 0; i < 4; i++) {   // 🔁 Mamaco revista as 4 posições do carrinho do cliente
-        if (compras[i] > 0) { // 🤔 O cliente colocou essa marmita no carrinho?
-            float subtotal = compras[i] * preco[i];  // 🧮 Conta rápida: Quantidade vezes Preço dela
-            printf("%s x %d = R$ %.2f\n", produtos[i], compras[i], subtotal);  // 📢 Mostra a linha do que ele comprou
-            total += subtotal; // 💰 Soma esse valor no dinheirão total
+void mostra_bebidas() {
+
+    printf("\n--- BEBIDAS ---\n");
+
+    for (int i = 0; i < 4; i++) {
+        printf("%d - %s -- R$ %.2f -- Estoque: %d\n",
+               i ,
+               bebidas[i],
+               preco_bebida[i],
+               estoque_bebida[i]);
+    }
+}
+
+
+void mostra_compra() {
+    float total = 0;
+    int comprou_algo = 0;
+
+    printf("\n");
+    printf("============================================\n");
+    printf("                NOTA FISCAL                 \n");
+    printf("============================================\n");
+
+    for (int i = 0; i < 4; i++) {
+        if (compra[i] != 0) {
+            float pagar = compra[i] * preco[i];
+            printf("%-20s x%d  --  Subtotal: R$ %.2f\n", produtos[i], compra[i], pagar);
+            total += pagar;
+            comprou_algo = 1;
         }
     }
-    
-    printf("----------------------------------\n");
-    printf("TOTAL A PAGAR: R$ %.2f\n", total);             // 📢 Mostra o valor final do estrago
-    printf("==================================\n");
+    for (int i = 0; i < 4; i++) {
+        if (compra_bebida[i] != 0) {
+            float pagar = compra_bebida[i] * preco_bebida[i];
+            printf("%-20s x%d  --  Subtotal: R$ %.2f\n", bebidas[i], compra_bebida[i], pagar);
+            total += pagar;
+            comprou_algo = 1;
+        }
+    }
+
+    if (!comprou_algo) {
+        printf("Nenhum item foi comprado.\n");
+    }
+
+    printf("============================================\n");
+    printf("TOTAL A PAGAR: R$ %.2f\n", total);
+    printf("============================================\n");
 }
 
-// 🕹️ O CORAÇÃO DO JOGO: ONDE TUDO COMEÇA
-int main() {          
-    carregar_dados(estoque); // 🤓 Primeira coisa: Abre o papel antigo pra ver se tinha estoque guardado
-    nome_loja(); // 🏢 Desenha o letreiro da loja na tela
+void escolha_marmita(){
+    int produto;
+    int quantidade;
+
+    printf("\nEscolha o numero da marmita: ");
+    scanf("%d", &produto);
+    if (produto < 0 || produto > 3){
+        printf("[Erro] Marmita invalida\n");
+        return;
+    }
+    printf("Escolha a quantidade: ");
+    scanf("%d", &quantidade);
     
-    do { // 🔁 FAZ ISSO AQUI EM BAIXO... (Começo do Loop do Menu)
-        printf("\n=== Sistema de Marmitas ===\n");         // 📋 Mostra o título do menu
-        printf("1 - Ver cardapio\n");                     // 📋 Opção 1
-        printf("2 - Fazer uma compra\n");                  // 📋 Opção 2
-        printf("3 - Finalizar e emitir nota\n");           // 📋 Opção 3
-        printf("Escolha uma opcao: ");                     // 💬 Pede pro humano escolher
+    if (quantidade <= 0) {
+        printf("[Erro] Quantidade invalida!\n");
+        return;
+    }
+
+    if (quantidade > estoque[produto]) {
+        printf("\n[Erro] Desculpe, so temos %d unidades de %s no estoque!\n", estoque[produto], produtos[produto]);
+    } else {
+        compra[produto] += quantidade;
+        estoque[produto] = estoque[produto] - quantidade;
+        printf("\n[Sucesso] %dx %s adicionada ao carrinho!\n", quantidade, produtos[produto]);
+    }
+}
+
+void escolha_bebida(){
+    int produto;
+    int quantidade;
+
+    printf("\nEscolha o numero da bebida: ");
+    scanf("%d", &produto);
+    if (produto < 0 || produto > 3){
+        printf("[Erro] Bebida invalida\n");
+        return;
+    }
+    printf("Escolha a quantidade: ");
+    scanf("%d", &quantidade);
+    
+    if (quantidade <= 0) {
+        printf("[Erro] Quantidade invalida!\n");
+        return;
+    }
+
+    if (quantidade > estoque_bebida[produto]) {
+        printf("\n[Erro] Desculpe, so temos %d unidades de %s no estoque!\n", estoque_bebida[produto], bebidas[produto]);
+    } else {
+        compra_bebida[produto] += quantidade;
+        estoque_bebida[produto] = estoque_bebida[produto] - quantidade;
+        printf("\n[Sucesso] %dx %s adicionada ao carrinho!\n", quantidade, bebidas[produto]);
+    }
+}
+void restoque_marmita(){
+    int produto;
+    int quantidade;
+    mostra_marmitas();
+
+    printf("\nEscolha o numero da marmita para repor: ");
+    scanf("%d", &produto);
+
+    if (produto < 0 || produto > 3) {
+        printf("[Erro] Marmita invalida!\n");
+        return;
+    }
+
+    printf("Quantidade a adicionar ao estoque: ");
+    scanf("%d", &quantidade);
+
+    if (quantidade <= 0) {
+        printf("[Erro] Quantidade invalida!\n");
+        return;
+    }
+
+    estoque[produto] += quantidade;
+    printf("\n[Sucesso] Estoque de %s atualizado para %d unidades!\n", produtos[produto], estoque[produto]);
+}
+
+void restoque_bebida(){
+    int produto;
+    int quantidade;
+    mostra_bebidas();
+
+    printf("\nEscolha o numero da bebida para repor: ");
+    scanf("%d", &produto);
+
+    if (produto < 0 || produto > 3) {
+        printf("[Erro] Bebida invalida!\n");
+        return;
+    }
+
+    printf("Quantidade a adicionar ao estoque: ");
+    scanf("%d", &quantidade);
+
+    if (quantidade <= 0) {
+        printf("[Erro] Quantidade invalida!\n");
+        return;
+    }
+
+    estoque_bebida[produto] += quantidade;
+    printf("\n[Sucesso] Estoque de %s atualizado para %d unidades!\n", bebidas[produto], estoque_bebida[produto]);
+}
+
+void restoque(){
+    
+    int tipo;
+    
+    printf("\n--- MODO ADMINISTRADOR: RESTOCAR ---\n");
+    printf("1 - Restocar Marmitas\n");
+    printf("2 - Restocar Bebidas\n");
+    printf("3 - Voltar ao Menu\n");
+    printf("Escolha o tipo de produto: ");
+    scanf("%d", &tipo);
+    
+    switch (tipo){
+        case 1:
+            restoque_marmita();
+            break;
+        case 2:
+            restoque_bebida();
+            break;
+        case 3:
+            break;
+        default:
+            printf("\n[Erro] Opcao invalida! Tente novamente.\n");
+            break;
+    }
+}
+
+
+int main()
+{
+    int opcao;
+    carrega_produto();
+    nome_loja();
+    while(opcao != 4){
         
-        scanf(" %c", &opcao); // 👁️ Mamaco fica olhando qual letra/número o usuário vai apertar
-        while (getchar() != '\n'); // 🧹 Limpa o Enter pra não bugar a próxima leitura
+         printf("\n--- MENU PRINCIPAL ---\n");
+        printf("1 - Comprar Marmita\n");
+        printf("2 - Comprar Bebida\n");
+        printf("3 - Abrir Menu de ADMINISTRADOR\n");
+        printf("4 - Finalizar Compra e Sair\n");
+        printf("Escolha uma opcao: ");
+        scanf("%d", &opcao);
         
-        switch(opcao) { // 🔀 Dependendo do botão que o humano apertou...
-            case '1': // 🔘 Se apertou '1':
-                cardapio(); // 📋 Chama o garçom pra mostrar o cardápio
-                break; // 🛑 Sai do Switch e vai checar o while lá embaixo
-            case '2': // 🔘 Se apertou '2':
-                cardapio(); // 📋 Mostra o cardápio primeiro pro humano não escolher às cegas
-                compra(); // 🛍️ Abre a barraca de vendas
-                break; // 🛑 Sai do Switch
-            case '3': // 🔘 Se apertou '3':
-                fechar_pedido(); // 🧾 Fecha a conta e mostra o preço
-                break; // 🛑 Sai do Switch
-            default: // 🔀 Se apertou qualquer outra tecla errada (tipo 'X' ou '9'):
-                printf("\n" COR_VERMELHA "Opcao invalida! Tente novamente." COR_RESETAR "\n"); // 🟥 Grita reclamação vermelha
-                break; // 🛑 Sai do Switch
+         switch (opcao) {
+            case 1:
+                mostra_marmitas();
+                escolha_marmita();
+                break;
+            case 2:
+                mostra_bebidas();
+                escolha_bebida();
+                break;
+            case 3:
+                restoque();
+                break;
+            case 4:
+                break;
+            default:
+                printf("\n[Erro] Opcao invalida! Tente novamente.\n");
+                break;
         }
-    } while(opcao != '3'); // 🔁 ...ENQUANTO o botão apertado for DIFERENTE de '3'. (Se for igual a '3', o loop quebra!)
+    }
+    mostra_compra();
+    salva_produto();
     
-    return 0; // 👌 Fim do programa! Mamaco vai comer banana porque o trabalho acabou.
+
+    return 0;
 }
